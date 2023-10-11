@@ -32,8 +32,8 @@ For visualizing the created points two functions are provided. For further infor
 
     plot_meas_coords(tank=tank, meas_coords=coordinates, p_select=None)
 
-![plot_meas_coords](https://github.com/JacobTh98/3dIT/tree/dev/images/plot_meas_coords.png)
+![plot_meas_coords](images/plot_meas_coords.png)
 
     plot_meas_coords_wball(tank=tank, meas_coords=coordinates, ball=ball, p_select=34)
 
-![plot_meas_coords_wball](https://github.com/JacobTh98/3dIT/tree/dev/images/plot_meas_coords_wball.png)
+![plot_meas_coords_wball](images/plot_meas_coords_wball.png)
