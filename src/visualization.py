@@ -71,7 +71,7 @@ def plot_meas_coords(
     ax.view_init(elev=elev, azim=azim)
     plt.tight_layout()
     if save_img:
-        plt.savefig(s_path + "plot_meas_coords.png", dpi=300)
+        plt.savefig(s_path + "plot_meas_coords.png", dpi=250)
     plt.show()
 
 
@@ -153,5 +153,5 @@ def plot_meas_coords_wball(
     ax.view_init(elev=elev, azim=azim)
     plt.tight_layout()
     if save_img:
-        plt.savefig(s_path + "plot_meas_coords_wball.png", dpi=300)
+        plt.savefig(s_path + "plot_meas_coords_wball.png", dpi=250)
     plt.show()
