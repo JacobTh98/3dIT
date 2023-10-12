@@ -7,6 +7,8 @@ _Based on: [sciospeceit](https://github.com/JacobTh98/sciospeceit)_
 
 ## Starting
 
+The standart full measurement notebook is provided [here](measurement.ipynb).
+
 ### Generate Measurement Coordinates
 
 Import the required libraries:
