@@ -5,7 +5,7 @@ ___
 
 _Based on: [sciospeceit](https://github.com/JacobTh98/sciospeceit)_
 
-## Starting
+## Start
 
 The standart full measurement notebook is provided [here](measurement.ipynb).
 
@@ -39,3 +39,10 @@ For visualizing the created points two functions are provided. For further infor
     plot_meas_coords_wball(tank=tank, meas_coords=coordinates, ball=ball, p_select=34)
 
 ![plot_meas_coords_wball](images/plot_meas_coords_wball.png)
+
+### Ender 5 Information
+
+The Ender 5 is used for object placement and movement inside the phantom tank. The nozzle for printing was replaced with a mounting construction.
+The coordinate system for controlling the Ender 5 is different from the python standard coordinate axis. The $x$ and $y$ axis has to be switched.
+
+![Ender5](images/ender.png)
