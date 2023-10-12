@@ -67,19 +67,9 @@ class HitBox:
 
 
 @dataclass
-class OperatingSystem:
-    system: str
-    resolution_width: int
-    resolution_height: int
-
-
-@dataclass
 class Ender5Stat:
     abs_x_pos: Union[int, float]
     abs_y_pos: Union[int, float]
     abs_z_pos: Union[int, float]
     tank_architecture: Union[None, str]
     motion_speed: Union[int, float]
-    abs_x_tgt: Union[None, int, float]
-    abs_y_tgt: Union[None, int, float]
-    abs_z_tgt: Union[None, int, float]

@@ -3,121 +3,81 @@ try:
 except ImportError:
     print("Could not import module: serial")
 
-# from sciopy import available_serial_ports,connect_COM_port
 import time
+import numpy as np
+from .classes import Ender5Stat
 
-from classes import Ender5Stat
 
-
-def command(ser, command) -> None:
-    """Write a command to the serial connection.
+def command(
+    ser: serial.serialwin32.Serial, command: str, print_msg: bool = True
+) -> None:
+    """
+    Write a command to the serial connection.
 
     Parameters
     ----------
-    ser : _type_
+    ser : serial.serialwin32.Serial
         serial connection
-    command : _type_
-        command string
+    command : str
+        GCODE command
+    print_msg : bool, optional
+        print log, by default True
     """
     ser.write(str.encode(command))
     time.sleep(1)
     while True:
         line = ser.readline()
-        print(line)
+        if print_msg:
+            print(line)
 
         if line == b"ok\n":
             break
 
 
-def move_to_absolute_x(ser, enderstat: Ender5Stat) -> None:
+def init_ender5(
+    ser: serial.serialwin32.Serial, enderstat: Ender5Stat, print_msg: bool = False
+):
     """
-    enderstat.abs_x_tgt : absolute x position
-    enderstat.motion_speed : movement speed in [mm/min]
-    """
-    command(ser, f"G0 X{enderstat.abs_x_tgt} F{enderstat.motion_speed}\r\n")
-    print(enderstat)
-
-
-def move_to_absolute_y(ser, enderstat: Ender5Stat) -> None:
-    """
-    enderstat.abs_x_tgt : absolute x position
-    enderstat.motion_speed : movement speed in [mm/min]
-    """
-    command(ser, f"G0 Y{enderstat.abs_y_tgt} F{enderstat.motion_speed}\r\n")
-    print(enderstat)
-
-
-def move_to_absolute_z(ser, enderstat: Ender5Stat) -> None:
-    """
-    enderstat.abs_x_tgt : absolute x position
-    enderstat.motion_speed : movement speed in [mm/min]
-    """
-    command(ser, f"G0 Z{enderstat.abs_z_tgt} F{enderstat.motion_speed}\r\n")
-    print(enderstat)
-
-
-def move_to_absolute_x_y(ser, enderstat: Ender5Stat) -> None:
-    """
-    enderstat.abs_x_tgt : absolute x position
-    enderstat.abs_y_tgt : absolute y position
-    enderstat.motion_speed : movement speed in [mm/min]
-    """
-    command(
-        ser,
-        f"G0 X{enderstat.abs_x_tgt} Y{enderstat.abs_y_tgt} F{enderstat.motion_speed}\r\n",
-    )
-    print(enderstat)
-
-
-def disable_steppers(ser) -> None:
-    """disable the steppers
+    Initialize the Ender 5
 
     Parameters
     ----------
-    ser : _type_
-        serial connection
-    """
-    command(ser, "M18 X Y Z E\r\n")
-
-
-def enable_steppers(ser) -> None:
-    """Enable steppers
-
-    Parameters
-    ----------
-    ser : _type_
-        serial connection
-    """
-    command(ser, "M17 X Y Z E\r\n")
-
-
-def x_y_home(ser, enderstat: Ender5Stat) -> None:
-    """Move to home position
-
-    Parameters
-    ----------
-    ser : _type_
+    ser : serial.serialwin32.Serial
         serial connection
     enderstat : Ender5Stat
-        ender 5 status dataclass
+        ender 5 dataclass
+    print_msg : bool, optional
+        print log, by default False
     """
-    command(ser, f"G28 X0 Y0 F{enderstat.motion_speed}\r\n")
-    command(ser, f"G28 Z0 F{enderstat.motion_speed}\r\n")
-    print(enderstat)
+    command(ser, f"G28 X0 Y0 F{enderstat.motion_speed}\r\n", print_msg=print_msg)
+    command(ser, f"G28 Z0 F{enderstat.motion_speed}\r\n", print_msg=print_msg)
+    enderstat.abs_x_pos = 180
+    enderstat.abs_y_pos = 180
+    enderstat.abs_z_pos = 0
+    if print_msg:
+        print(enderstat)
 
 
-def x_y_center(ser, enderstat: Ender5Stat) -> None:
-    """Move to x,y center position
+def x_y_center(
+    ser: serial.serialwin32.Serial, enderstat: Ender5Stat, print_msg: bool = False
+):
+    """
+    Move x,y axis to center position.
 
     Parameters
     ----------
-    ser : _type_
+    ser : serial.serialwin32.Serial
         serial connection
     enderstat : Ender5Stat
-        ender 5 status dataclass
+        ender 5 dataclass
+    print_msg : bool, optional
+        print log, by default False
     """
     command(ser, f"G0 X180 Y180 F{enderstat.motion_speed}\r\n")
-    print(enderstat)
+    enderstat.abs_x_pos = 180
+    enderstat.abs_y_pos = 180
+    if print_msg:
+        print(enderstat)
 
 
 def turn_off_fan(ser) -> None:
@@ -125,42 +85,82 @@ def turn_off_fan(ser) -> None:
 
     Parameters
     ----------
-    ser : _type_
+    ser : serial
         serial connection
     """
     command(ser, "M106 S0\r\n")
 
 
-def init_axis(ser) -> None:
-    """Initialise the axis
-
-    Parameters
-    ----------
-    ser : _type_
-        serial connection
-    """
-    x_y_home(ser)
-    x_y_center(ser)
-    turn_off_fan(ser)
-    print("X,Y axis are centered at X(180), Y(180)")
-
-
-def read_temperature(ser) -> float:  # TB-checked
+def read_temperature(ser: serial.serialwin32.Serial) -> float:
     """
     Read the bed temperature of the Ender 5
 
     Parameters
     ----------
-    ser : _type_
+    ser : serial.serialwin32.Serial
         serial connection
 
     Returns
     -------
     float
-        temperature value
+        temperature [°C]
     """
     ser.write(str.encode(f"M105\r\n"))
     time.sleep(1)
     line = ser.readline()
     temp = float(str(line).split("B:")[1].split(" ")[0])
     return temp
+
+
+def move_to_absolute_x_y_z(
+    ser: serial.serialwin32.Serial, enderstat: Ender5Stat, print_msg: bool = False
+) -> None:
+    """
+    Move to given x,y,z coordinates.
+
+    Parameters
+    ----------
+    ser : serial.serialwin32.Serial
+        serial connection
+    enderstat : Ender5Stat
+        ender 5 dataclass
+    print_msg : bool, optional
+        print log, by default False
+    """
+    command(
+        ser,
+        f"G0 X{enderstat.abs_x_pos} Y{enderstat.abs_y_pos} Z{enderstat.abs_z_pos} F{enderstat.motion_speed}\r\n",
+    )
+    if print_msg:
+        print(enderstat)
+
+
+def move_ender_to_coordinate(
+    ser: serial.serialwin32.Serial,
+    coordinate: np.ndarray,
+    enderstat: Ender5Stat,
+    print_msg: bool = False,
+) -> None:
+    """
+    Move to the P(x,y,z) position of a np.array([x,y,z]).
+
+    Parameters
+    ----------
+    ser : serial.serialwin32.Serial
+        serial connection
+    coordinate : np.ndarray
+        array with [x,y,z] coordinate
+    enderstat : Ender5Stat
+        ender 5 dataclass
+    print_msg : bool, optional
+        print log, by default False
+    """
+    x_y_offset = 180  # x,y center point
+    y_ender, x_ender, z_ender = coordinate  # switch x,y for ender koordinate system
+
+    enderstat.abs_x_pos = x_y_offset + x_ender
+    enderstat.abs_y_pos = x_y_offset + y_ender
+    enderstat.abs_z_pos = z_ender
+    move_to_absolute_x_y_z(ser, enderstat, print_msg)
+    if print_msg:
+        print(enderstat)
