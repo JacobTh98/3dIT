@@ -30,11 +30,7 @@ This means that the final number of measurements is much smaller than `x_pts`$\c
     coordinates = create_meas_coordinates(hitbox, x_pts=20, y_pts=20, z_pts=10)
 
 To get further information about `coordinates` you can apply the function `print_coordinates_props()`.
-For visualizing the created points two functions are provided. For further information, calll the docstring documentation.
-
-    plot_meas_coords(tank=tank, meas_coords=coordinates, p_select=None)
-
-![plot_meas_coords](images/plot_meas_coords.png)
+For visualizing the created points the two functions `plot_meas_coords()` and `plot_meas_coords_wball()` are provided. For further information, call the docstring documentation.
 
     plot_meas_coords_wball(tank=tank, meas_coords=coordinates, ball=ball, p_select=34)
 
@@ -46,3 +42,13 @@ The Ender 5 is used for object placement and movement inside the phantom tank. T
 The coordinate system for controlling the Ender 5 is different from the python standard coordinate axis. The $x$ and $y$ axis has to be switched.
 
 ![Ender5](images/ender.png)
+
+### Measurement Objects
+
+Three objects are printed using PLA with a radius of:
+
+- $r=20$ mm
+- $r=25$ mm
+- $r=30$ mm
+
+![r20_r25_r30_mm.png](images/r20_r25_r30_mm.png)
