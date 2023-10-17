@@ -80,6 +80,32 @@ def x_y_center(
         print(enderstat)
 
 
+def x_y_z_home(
+    ser: serial.serialwin32.Serial, enderstat: Ender5Stat, print_msg: bool = False
+) -> None:
+    """
+    Move x,y=180 and z=0.
+
+    Parameters
+    ----------
+    ser : serial.serialwin32.Serial
+        serial connection
+    enderstat : Ender5Stat
+        ender 5 dataclass
+    print_msg : bool, optional
+        print log, by default False
+    """
+    enderstat.abs_x_pos = 180
+    enderstat.abs_y_pos = 180
+    enderstat.abs_z_pos = 0
+    command(
+        ser,
+        f"G0 X{enderstat.abs_x_pos} Y{enderstat.abs_y_pos} Z{enderstat.abs_z_pos} F{enderstat.motion_speed}\r\n",
+    )
+    if print_msg:
+        print(enderstat)
+
+
 def turn_off_fan(ser) -> None:
     """Turn off the cooling fans.
 
