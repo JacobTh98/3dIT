@@ -182,11 +182,22 @@ def move_ender_to_coordinate(
         print log, by default False
     """
     x_y_offset = 180  # x,y center point
+    start_point = np.array(
+        [
+            enderstat.abs_x_pos - x_y_offset,
+            enderstat.abs_y_pos - x_y_offset,
+            enderstat.abs_z_pos,
+        ]
+    )
+    distance = np.linalg.norm(start_point - coordinate)
     y_ender, x_ender, z_ender = coordinate  # switch x,y for ender koordinate system
 
     enderstat.abs_x_pos = x_y_offset + x_ender
     enderstat.abs_y_pos = x_y_offset + y_ender
     enderstat.abs_z_pos = z_ender
     move_to_absolute_x_y_z(ser, enderstat, print_msg)
+    time.sleep(
+        int(np.ceil((distance / enderstat.motion_speed) * 100) + 4)
+    )  # 4 seconds tolerance
     if print_msg:
         print(enderstat)
