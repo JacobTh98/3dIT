@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from .classes import TankProperties32x2, BallObjectProperties
+from .classes import TankProperties32x2, BallAnomaly, PyEIT3DMesh
 import numpy as np
 from typing import Union
 
@@ -78,7 +78,7 @@ def plot_meas_coords(
 def plot_meas_coords_wball(
     tank: TankProperties32x2,
     meas_coords: np.ndarray,
-    ball: BallObjectProperties,
+    ball: BallAnomaly,
     p_select: int = 0,
     elev: int = 20,
     azim: int = 10,
@@ -94,7 +94,7 @@ def plot_meas_coords_wball(
         tank properties [mm]
     meas_coords : np.ndarray
         computed absolute measurement coordinates [mm]
-    ball : BallObjectProperties
+    ball : BallAnomaly
         ball properties [mm]
     p_select : Union[None, int], optional
         highlight a single measurement coordinate, by default 0
@@ -152,4 +152,45 @@ def plot_meas_coords_wball(
     plt.tight_layout()
     if save_img:
         plt.savefig(s_path + "plot_meas_coords_wball.png", dpi=250)
+    plt.show()
+
+
+def plot_mesh(
+    mesh: PyEIT3DMesh,
+    tank: TankProperties32x2,
+    elev: int = 10,
+    azim: int = 30,
+    show_tank_brdr: bool = False,
+) -> None:
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+    # phantom-tank border
+    if show_tank_brdr:
+        zyl_pnts = 50
+        theta = np.linspace(0, 2 * np.pi, zyl_pnts)
+        z = np.linspace(tank.T_bz[0], tank.T_bz[1], zyl_pnts)
+        Z, Theta = np.meshgrid(z, theta)
+        X = tank.T_r * np.cos(Theta)
+        Y = tank.T_r * np.sin(Theta)
+        ax.plot_surface(X, Y, Z, color="C7", alpha=0.2)
+
+    # plot mesh
+    ax.scatter(
+        mesh.x_nodes,
+        mesh.y_nodes,
+        mesh.z_nodes,
+        c=mesh.perm_array,
+        marker="o",
+        s=25,
+        alpha=0.3,
+    )
+    ax.set_xlim([tank.T_bx[0], tank.T_bx[1]])
+    ax.set_ylim([tank.T_by[0], tank.T_by[1]])
+    ax.set_zlim([tank.T_bz[0], tank.T_bz[1]])
+
+    ax.set_xlabel("x pos [mm]")
+    ax.set_ylabel("y pos [mm]")
+    ax.set_zlabel("z pos [mm]")
+    ax.view_init(elev=elev, azim=azim)
+    plt.tight_layout()
     plt.show()

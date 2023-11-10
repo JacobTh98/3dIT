@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Union
+import numpy as np
 
 
 @dataclass
@@ -27,12 +28,13 @@ class TankProperties32x2:
 
 
 @dataclass
-class BallObjectProperties:
+class BallAnomaly:
     """
     x        := absolute x-position [mm]
     y        := absolute y-position [mm]
     z        := absolute z-position [mm]
     r        := ball radius [mm]
+    perm     := permittivity value
     material := object material [mm]
     """
 
@@ -40,6 +42,7 @@ class BallObjectProperties:
     y: Union[int, float]
     z: Union[int, float]
     r: Union[int, float]
+    perm: Union[int, float]
     material: str
 
 
@@ -68,8 +71,41 @@ class HitBox:
 
 @dataclass
 class Ender5Stat:
+    """
+    abs_x_pos
+    abs_y_pos
+    abs_z_pos
+    tank_architecture
+    motion_speed
+    """
+
     abs_x_pos: Union[int, float]
     abs_y_pos: Union[int, float]
     abs_z_pos: Union[int, float]
     tank_architecture: Union[None, str]
     motion_speed: Union[int, float]
+
+
+@dataclass
+class PyEIT3DMesh:
+    """
+    x_nodes     := x node coordinates
+    y_nodes     := y node coordinates
+    z_nodes     := z node coordinates
+    perm_array  := permittivity array
+    x_obj_pos   := absolute object x position
+    y_obj_pos   := absolute object y position
+    z_obj_pos   := absolute object z position
+    r_obj       := absolute object radius
+    material    := object material
+    """
+
+    x_nodes: np.ndarray
+    y_nodes: np.ndarray
+    z_nodes: np.ndarray
+    perm_array: np.ndarray
+    x_obj_pos: Union[None, float] = None
+    y_obj_pos: Union[None, float] = None
+    z_obj_pos: Union[None, float] = None
+    r_obj: Union[None, float] = None
+    material: Union[None, str] = None

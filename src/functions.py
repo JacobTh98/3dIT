@@ -1,5 +1,5 @@
 from typing import Union, Tuple
-from .classes import TankProperties32x2, BallObjectProperties, HitBox
+from .classes import TankProperties32x2, BallAnomaly, HitBox, PyEIT3DMesh
 import numpy as np
 import json
 import os
@@ -9,7 +9,7 @@ from sciopy.sciopy_dataclasses import ScioSpecMeasurementSetup
 
 def compute_hitbox(
     tank: TankProperties32x2,
-    ball: BallObjectProperties,
+    ball: BallAnomaly,
     safety_tolerance: Union[int, float] = 5.0,
 ) -> HitBox:
     """
@@ -19,7 +19,7 @@ def compute_hitbox(
     ----------
     tank : TankProperties32x2
         tank properties [mm]
-    ball : BallObjectProperties
+    ball : BallAnomaly
         ball properties [mm]
     safety_tolerance : Union[int, float], optional
         border tolerance [mm], by default 5.0
@@ -136,7 +136,7 @@ def save_parameters_to_json_file(
     f_name: str,
     ssms: ScioSpecMeasurementSetup,
     tank: TankProperties32x2,
-    ball: BallObjectProperties,
+    ball: BallAnomaly,
     hitbox: HitBox,
 ) -> None:
     """
@@ -152,7 +152,7 @@ def save_parameters_to_json_file(
         sciospec measurement dataclass
     tank : TankProperties32x2
         tank properties [mm]
-    ball : BallObjectProperties
+    ball : BallAnomaly
         ball properties [mm]
     hitbox : HitBox
         x,y,z limits for measurements [mm]
@@ -169,7 +169,7 @@ def save_parameters_to_json_file(
         "Info": "All dimensions are given in [mm]",
         "ScioSpecMeasurementSetup": ssms_dict,
         "TankProperties32x2": tank_dict,
-        "BallObjectProperties": ball_dict,
+        "BallAnomaly": ball_dict,
         "HitBox": hitbox_dict,
     }
 
@@ -178,3 +178,100 @@ def save_parameters_to_json_file(
     with open(s_path[:-5] + "info.json", "w") as file:
         file.write(combined_json_str)
     print(f"Saved properties to: {s_path}")
+
+
+def create_mesh(
+    tank: TankProperties32x2, h0: float = 0.1, perm_background: float = 1
+) -> PyEIT3DMesh:
+    """
+    Creates an empty 3D-mesh.
+
+    Parameters
+    ----------
+    tank : TankProperties32x2
+        tank properties [mm]
+    h0 : float, optional
+        points per millimeter, by default 0.1
+    perm_background : float, optional
+        perm value, by default 1
+
+    Returns
+    -------
+    PyEIT3DMesh
+        3D point cloud dataclass
+    """
+    x_pts = y_pts = int(tank.T_d * h0)
+    z_pts = int(tank.T_bz[1] * h0)
+    # h0 ... points per mm
+    x = np.linspace(tank.T_bx[0], tank.T_bx[1], x_pts)
+    y = np.linspace(tank.T_by[0], tank.T_by[1], y_pts)
+    z = np.linspace(tank.T_bz[0], tank.T_bz[1], z_pts)
+    xx, yy, zz = np.meshgrid(x, y, z)
+
+    tank_vol = np.sqrt(xx**2 + yy**2)
+    mask = tank_vol <= tank.T_r
+
+    x_nodes = xx[mask].flatten()
+    y_nodes = yy[mask].flatten()
+    z_nodes = zz[mask].flatten()
+    perm = np.ones(len(x_nodes)) * perm_background
+    return PyEIT3DMesh(x_nodes, y_nodes, z_nodes, perm)
+
+
+def clear_perm(mesh: PyEIT3DMesh, perm_background: float = 1.0) -> PyEIT3DMesh:
+    """
+    Clear and reset all perm values to a given value, by default 1.
+
+    Parameters
+    ----------
+    mesh : PyEIT3DMesh
+        3D point cloud dataclass
+    perm_background : float, optional
+        initial perm value, by default 1.0
+
+    Returns
+    -------
+    PyEIT3DMesh
+        3D point cloud dataclass
+    """
+    mesh.perm_array = np.ones(len(mesh.perm_array)) * perm_background
+    return mesh
+
+
+def set_perm(
+    mesh: PyEIT3DMesh,
+    anomaly: BallAnomaly,
+    perm_background: float = 1.0,
+    clear_bg: bool = True,
+) -> PyEIT3DMesh:
+    """
+    Set the perm values for point cloud representation.
+
+    Parameters
+    ----------
+    mesh : PyEIT3DMesh
+        3D point cloud dataclass
+    anomaly : BallAnomaly
+        description of the anomaly
+    perm_background : float
+        perm value, by default 1
+    clear_bg : bool
+        clear and reset background perm to perm_background, by default True
+
+    Returns
+    -------
+    PyEIT3DMesh
+        3D point cloud dataclass
+    """
+    if clear_bg:
+        mesh = clear_perm(mesh=mesh, perm_background=perm_background)
+    obj_vol = (
+        np.sqrt(
+            (mesh.x_nodes - anomaly.x) ** 2
+            + (mesh.y_nodes - anomaly.y) ** 2
+            + (mesh.z_nodes - anomaly.z) ** 2
+        )
+        <= anomaly.r
+    )
+    mesh.perm_array[obj_vol] = anomaly.perm
+    return mesh
