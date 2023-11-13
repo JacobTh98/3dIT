@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from .classes import PyEIT3DMesh, TankProperties32x2
 
+
 def get_sample(l_path: str, idx: int) -> np.lib.npyio.NpzFile:
     """
     Load a single sample out of a load path.
@@ -83,7 +84,6 @@ def temperature_history(
 def get_mesh(tmp: np.lib.npyio.NpzFile) -> PyEIT3DMesh:
     mesh_obj = tmp["mesh_obj"].tolist()
     return mesh_obj
-
 
 
 def get_trajectory(

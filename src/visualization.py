@@ -196,5 +196,3 @@ def plot_mesh(
     ax.view_init(elev=elev, azim=azim)
     plt.tight_layout()
     plt.show()
-
-
