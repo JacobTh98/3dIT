@@ -109,3 +109,11 @@ class PyEIT3DMesh:
     z_obj_pos: Union[None, float] = None
     r_obj: Union[None, float] = None
     material: Union[None, str] = None
+
+
+@dataclass
+class MeasurementInformation:
+    saline: tuple[float, str]
+    saline_height: tuple[float, str]
+    temperature: tuple[float, str]
+    timestamp: str

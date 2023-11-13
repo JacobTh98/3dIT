@@ -61,5 +61,3 @@ Three ball objects are build out of acryl glass with three different diameters
 - $r=20$ mm
 - $r=30$ mm
 - $r=40$ mm
-
-![r20_r25_r30_mm.png](images/r20_r25_r30_mm.png)

@@ -274,4 +274,5 @@ def set_perm(
         <= anomaly.r
     )
     mesh.perm_array[obj_vol] = anomaly.perm
+    mesh.material = anomaly.material
     return mesh

@@ -8,15 +8,13 @@ import numpy as np
 from .classes import Ender5Stat
 
 
-def command(
-    ser: serial.serialwin32.Serial, command: str, print_msg: bool = True
-) -> None:
+def command(ser, command: str, print_msg: bool = True) -> None:
     """
     Write a command to the serial connection.
 
     Parameters
     ----------
-    ser : serial.serialwin32.Serial
+    ser
         serial connection
     command : str
         GCODE command
@@ -34,15 +32,13 @@ def command(
             break
 
 
-def init_ender5(
-    ser: serial.serialwin32.Serial, enderstat: Ender5Stat, print_msg: bool = False
-):
+def init_ender5(ser, enderstat: Ender5Stat, print_msg: bool = False):
     """
     Initialize the Ender 5
 
     Parameters
     ----------
-    ser : serial.serialwin32.Serial
+    ser
         serial connection
     enderstat : Ender5Stat
         ender 5 dataclass
@@ -58,15 +54,13 @@ def init_ender5(
         print(enderstat)
 
 
-def x_y_center(
-    ser: serial.serialwin32.Serial, enderstat: Ender5Stat, print_msg: bool = False
-):
+def x_y_center(ser, enderstat: Ender5Stat, print_msg: bool = False):
     """
     Move x,y axis to center position.
 
     Parameters
     ----------
-    ser : serial.serialwin32.Serial
+    ser
         serial connection
     enderstat : Ender5Stat
         ender 5 dataclass
@@ -80,15 +74,13 @@ def x_y_center(
         print(enderstat)
 
 
-def x_y_z_home(
-    ser: serial.serialwin32.Serial, enderstat: Ender5Stat, print_msg: bool = False
-) -> None:
+def x_y_z_home(ser, enderstat: Ender5Stat, print_msg: bool = False) -> None:
     """
     Move x,y=180 and z=0.
 
     Parameters
     ----------
-    ser : serial.serialwin32.Serial
+    ser
         serial connection
     enderstat : Ender5Stat
         ender 5 dataclass
@@ -117,36 +109,34 @@ def turn_off_fan(ser) -> None:
     command(ser, "M106 S0\r\n")
 
 
-def read_temperature(ser: serial.serialwin32.Serial) -> float:
+def read_temperature(ser) -> float:
     """
     Read the bed temperature of the Ender 5
 
     Parameters
     ----------
-    ser : serial.serialwin32.Serial
+    ser
         serial connection
 
     Returns
     -------
-    float
+    tuple
         temperature [°C]
     """
     ser.write(str.encode(f"M105\r\n"))
     time.sleep(1)
     line = ser.readline()
     temp = float(str(line).split("B:")[1].split(" ")[0])
-    return temp
+    return (temp, "°C")
 
 
-def move_to_absolute_x_y_z(
-    ser: serial.serialwin32.Serial, enderstat: Ender5Stat, print_msg: bool = False
-) -> None:
+def move_to_absolute_x_y_z(ser, enderstat: Ender5Stat, print_msg: bool = False) -> None:
     """
     Move to given x,y,z coordinates.
 
     Parameters
     ----------
-    ser : serial.serialwin32.Serial
+    ser
         serial connection
     enderstat : Ender5Stat
         ender 5 dataclass
@@ -162,7 +152,7 @@ def move_to_absolute_x_y_z(
 
 
 def move_ender_to_coordinate(
-    ser: serial.serialwin32.Serial,
+    ser,
     coordinate: np.ndarray,
     enderstat: Ender5Stat,
     print_msg: bool = False,
@@ -172,7 +162,7 @@ def move_ender_to_coordinate(
 
     Parameters
     ----------
-    ser : serial.serialwin32.Serial
+    ser
         serial connection
     coordinate : np.ndarray
         array with [x,y,z] coordinate
