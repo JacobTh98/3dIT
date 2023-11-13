@@ -21,7 +21,7 @@ class TankProperties32x2:
     T_r: int = 97
     T_bx: tuple = (-T_d / 2, T_d / 2)
     T_by: tuple = (-T_d / 2, T_d / 2)
-    T_bz: tuple = (0, 148)
+    T_bz: tuple = (0, 140)
     E_zr1: int = 50
     E_zr2: int = 100
     n_el: int = 64

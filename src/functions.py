@@ -37,7 +37,7 @@ def compute_hitbox(
         y_min=tank.T_by[0] + ball.d / 2 + safety_tolerance,
         y_max=tank.T_by[1] - ball.d / 2 - safety_tolerance,
         z_min=tank.T_bz[0] + ball.d / 2 + safety_tolerance,
-        z_max=tank.T_bz[1] - ball.d / 2 - safety_tolerance,
+        z_max=tank.T_bz[1] - ball.d - safety_tolerance,
     )
     return hitbox
 
@@ -271,7 +271,7 @@ def set_perm(
             + (mesh.y_nodes - anomaly.y) ** 2
             + (mesh.z_nodes - anomaly.z) ** 2
         )
-        <= anomaly.r
+        <= anomaly.d / 2
     )
     mesh.perm_array[obj_vol] = anomaly.perm
     mesh.material = anomaly.material
