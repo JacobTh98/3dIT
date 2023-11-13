@@ -52,12 +52,7 @@ For ground truth visualization a point cloud is used. The corresponding class an
 The Ender 5 is used for object placement and movement inside the phantom tank. The nozzle for printing was replaced with a mounting construction.
 The coordinate system for controlling the Ender 5 is different from the python standard coordinate axis. The $x$ and $y$ axis has to be switched.
 
-![Ender5](images/ender.png)
-
 ### Measurement Objects
 
-Three ball objects are build out of acryl glass with three different diameters
-
-- $r=20$ mm
-- $r=30$ mm
-- $r=40$ mm
+In total 36 measurement combination are planned.
+![measurement_tree](images/measurement_tree.png)

@@ -33,7 +33,7 @@ class BallAnomaly:
     x        := absolute x-position [mm]
     y        := absolute y-position [mm]
     z        := absolute z-position [mm]
-    r        := ball radius [mm]
+    d        := ball diameter [mm]
     perm     := permittivity value
     material := object material [mm]
     """
@@ -41,7 +41,7 @@ class BallAnomaly:
     x: Union[int, float]
     y: Union[int, float]
     z: Union[int, float]
-    r: Union[int, float]
+    d: Union[int, float]
     perm: Union[int, float]
     material: str
 

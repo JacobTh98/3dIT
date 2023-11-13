@@ -121,9 +121,9 @@ def plot_meas_coords_wball(
     bwl_pts = 10
     u = np.linspace(0, 2 * np.pi, bwl_pts)
     v = np.linspace(0, np.pi, bwl_pts)
-    x_c = meas_coords[p_select, 0] + ball.r * np.outer(np.cos(u), np.sin(v))
-    y_c = meas_coords[p_select, 1] + ball.r * np.outer(np.sin(u), np.sin(v))
-    z_c = meas_coords[p_select, 2] + ball.r * np.outer(np.ones(np.size(u)), np.cos(v))
+    x_c = meas_coords[p_select, 0] + ball.d/2 * np.outer(np.cos(u), np.sin(v))
+    y_c = meas_coords[p_select, 1] + ball.d/2 * np.outer(np.sin(u), np.sin(v))
+    z_c = meas_coords[p_select, 2] + ball.d/2 * np.outer(np.ones(np.size(u)), np.cos(v))
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
