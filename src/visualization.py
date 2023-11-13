@@ -159,7 +159,7 @@ def plot_meas_coords_wball(
 
 def plot_mesh(
     mesh: PyEIT3DMesh,
-    tank: TankProperties32x2,
+    tank: TankProperties32x2 = TankProperties32x2(),
     elev: int = 10,
     azim: int = 30,
     show_tank_brdr: bool = False,
@@ -196,3 +196,5 @@ def plot_mesh(
     ax.view_init(elev=elev, azim=azim)
     plt.tight_layout()
     plt.show()
+
+

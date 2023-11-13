@@ -2,7 +2,7 @@ import json
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-
+from .classes import PyEIT3DMesh, TankProperties32x2
 
 def get_sample(l_path: str, idx: int) -> np.lib.npyio.NpzFile:
     """
@@ -78,3 +78,59 @@ def temperature_history(
             plt.savefig(l_path + "temperature_history.pdf")
         plt.show()
     return temp_hist
+
+
+def get_mesh(tmp: np.lib.npyio.NpzFile) -> PyEIT3DMesh:
+    mesh_obj = tmp["mesh_obj"].tolist()
+    return mesh_obj
+
+
+
+def get_trajectory(
+    l_path: str,
+    tank: TankProperties32x2 = TankProperties32x2(),
+    elev: int = 10,
+    azim: int = 30,
+) -> np.ndarray:
+    dir_length = len(os.listdir(l_path + "data/"))
+    traj_xyz = np.zeros((dir_length, 3))
+
+    for idx in range(dir_length):
+        tmp, _ = get_sample(l_path, idx)
+        traj_xyz[idx, 0] = tmp["anomaly"].tolist().x
+        traj_xyz[idx, 1] = tmp["anomaly"].tolist().y
+        traj_xyz[idx, 2] = tmp["anomaly"].tolist().z
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+    # phantom-tank border
+
+    zyl_pnts = 50
+    theta = np.linspace(0, 2 * np.pi, zyl_pnts)
+    z = np.linspace(tank.T_bz[0], tank.T_bz[1], zyl_pnts)
+    Z, Theta = np.meshgrid(z, theta)
+    X = tank.T_r * np.cos(Theta)
+    Y = tank.T_r * np.sin(Theta)
+    ax.plot_surface(X, Y, Z, color="C7", alpha=0.2)
+
+    # plot mesh
+    ax.scatter(
+        traj_xyz[:, 0],
+        traj_xyz[:, 1],
+        traj_xyz[:, 2],
+        # c=mesh.perm_array,
+        marker="o",
+        s=25,
+        alpha=0.3,
+    )
+    # ax.set_xlim([tank.T_bx[0], tank.T_bx[1]])
+    # ax.set_ylim([tank.T_by[0], tank.T_by[1]])
+    # ax.set_zlim([tank.T_bz[0], tank.T_bz[1]])
+
+    ax.set_xlabel("x pos [mm]")
+    ax.set_ylabel("y pos [mm]")
+    ax.set_zlabel("z pos [mm]")
+    ax.view_init(elev=elev, azim=azim)
+    plt.tight_layout()
+    plt.show()
+    return np.unique(traj_xyz, axis=0)
