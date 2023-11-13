@@ -31,13 +31,13 @@ def compute_hitbox(
     """
     hitbox = HitBox(
         r_min=0,
-        r_max=tank.T_bx[1] - ball.d/2 - safety_tolerance,
-        x_min=tank.T_bx[0] + ball.d/2 + safety_tolerance,
-        x_max=tank.T_bx[1] - ball.d/2 - safety_tolerance,
-        y_min=tank.T_by[0] + ball.d/2 + safety_tolerance,
-        y_max=tank.T_by[1] - ball.d/2 - safety_tolerance,
-        z_min=tank.T_bz[0] + ball.d/2 + safety_tolerance,
-        z_max=tank.T_bz[1] - ball.d/2 - safety_tolerance,
+        r_max=tank.T_bx[1] - ball.d / 2 - safety_tolerance,
+        x_min=tank.T_bx[0] + ball.d / 2 + safety_tolerance,
+        x_max=tank.T_bx[1] - ball.d / 2 - safety_tolerance,
+        y_min=tank.T_by[0] + ball.d / 2 + safety_tolerance,
+        y_max=tank.T_by[1] - ball.d / 2 - safety_tolerance,
+        z_min=tank.T_bz[0] + ball.d / 2 + safety_tolerance,
+        z_max=tank.T_bz[1] - ball.d / 2 - safety_tolerance,
     )
     return hitbox
 
@@ -277,9 +277,12 @@ def set_perm(
     mesh.material = anomaly.material
     return mesh
 
-def rename_savedir(s_path:str, ball:BallAnomaly, ssms:ScioSpecMeasurementSetup)->None:
+
+def rename_savedir(
+    s_path: str, ball: BallAnomaly, ssms: ScioSpecMeasurementSetup
+) -> None:
     """
-    Rename the timestamp save directory to material, injection and size of the 
+    Rename the timestamp save directory to material, injection and size of the
     measurement procedure.
 
     Parameters
@@ -291,10 +294,17 @@ def rename_savedir(s_path:str, ball:BallAnomaly, ssms:ScioSpecMeasurementSetup)-
     ssms : ScioSpecMeasurementSetup
         sciospec measurement dataclass
     """
-    n_s_path = s_path[:-24] + ball.material+"_skip_"+str(ssms.inj_skip)+"_d_"+str(ball.d)
-    print("renamed:",s_path,"to:")
+    n_s_path = (
+        s_path[:-24]
+        + ball.material
+        + "_skip_"
+        + str(ssms.inj_skip)
+        + "_d_"
+        + str(ball.d)
+    )
+    print("renamed:", s_path, "to:")
     try:
-        os.rename(s_path[:-5],n_s_path)
+        os.rename(s_path[:-5], n_s_path)
         print("\t", n_s_path)
     except BaseException:
         print("ERROR: Folder already exist or other problems.")
