@@ -13,14 +13,14 @@ The standart full measurement notebook is provided [here](measurement.ipynb).
 
 Import the required libraries:
 
-    from src.classes import BallObjectProperties, HitBox, TankProperties32x2
+    from src.classes import BallAnomaly, HitBox, TankProperties32x2
     from src.functions import compute_hitbox, create_meas_coordinates, print_coordinates_props
     from src.visualization import plot_meas_coords, plot_meas_coords_wball
 
 Define variables that contain the information and parameters of the tank, ball, and hitbox, saved in the provided dataclasses.
 
     tank = TankProperties32x2()
-    ball = BallObjectProperties(x=0, y=0, z=0, r=20, material=None)
+    ball = BallAnomaly(x=0, y=0, z=0, r=20, material=None)
     hitbox = compute_hitbox(tank, ball, safety_tolerance=0)
 
 Create the measurement coordinates using the `create_meas_coordinates()` function. 
@@ -36,6 +36,17 @@ For visualizing the created points the two functions `plot_meas_coords()` and `p
 
 ![plot_meas_coords_wball](images/plot_meas_coords_wball.png)
 
+For ground truth visualization a point cloud is used. The corresponding class and "mesh" generation can be used by:
+
+    # define tank and object properties
+    tank = TankProperties32x2()
+    ball = BallAnomaly(x=0, y=0, z=50, r=20, perm=10, material="acryl-glass")
+    mesh_obj = create_mesh(tank)
+    # visualization
+    plot_mesh(mesh_obj, tank, show_tank_brdr=True)
+    # set the perm
+    mesh_obj = set_perm(mesh_obj, ball)
+
 ### Ender 5 Information
 
 The Ender 5 is used for object placement and movement inside the phantom tank. The nozzle for printing was replaced with a mounting construction.
@@ -45,10 +56,10 @@ The coordinate system for controlling the Ender 5 is different from the python s
 
 ### Measurement Objects
 
-Three objects are printed using PLA with a radius of:
+Three ball objects are build out of acryl glass with three different diameters
 
 - $r=20$ mm
-- $r=25$ mm
 - $r=30$ mm
+- $r=40$ mm
 
 ![r20_r25_r30_mm.png](images/r20_r25_r30_mm.png)
