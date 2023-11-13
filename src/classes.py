@@ -49,14 +49,14 @@ class BallAnomaly:
 @dataclass
 class HitBox:
     """
-    r_min := absolute object r min [mm]
-    r_max := absolute object r max [mm]
-    x_min := absolute object x min [mm]
-    x_max := absolute object x max [mm]
-    y_min := absolute object y min [mm]
-    y_max := absolute object y max [mm]
-    z_min := absolute object z min [mm]
-    z_max := absolute object z max [mm]
+    r_min := absolute object r min position in the ender coordinate system [mm]
+    r_max := absolute object r max position in the ender coordinate system [mm]
+    x_min := absolute object x min position in the ender coordinate system [mm]
+    x_max := absolute object x max position in the ender coordinate system [mm]
+    y_min := absolute object y min position in the ender coordinate system [mm]
+    y_max := absolute object y max position in the ender coordinate system [mm]
+    z_min := absolute object z min position in the ender coordinate system [mm]
+    z_max := absolute object z max position in the ender coordinate system [mm]
     """
 
     r_min: Union[int, float]
