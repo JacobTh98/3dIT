@@ -2,7 +2,8 @@ import json
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-from .classes import PyEIT3DMesh, TankProperties32x2
+from .classes import PyEIT3DMesh, TankProperties32x2, BallAnomaly
+from sciopy.sciopy_dataclasses import ScioSpecMeasurementSetup, SingleFrame
 
 
 def get_sample(l_path: str, idx: int) -> np.lib.npyio.NpzFile:
@@ -82,16 +83,52 @@ def temperature_history(
 
 
 def get_mesh(tmp: np.lib.npyio.NpzFile) -> PyEIT3DMesh:
+    """
+    Load the mesh of a single .npz file.
+
+    Parameters
+    ----------
+    tmp : np.lib.npyio.NpzFile
+        single measurement sample
+
+    Returns
+    -------
+    PyEIT3DMesh
+        mesh_obj dataclass
+    """
     mesh_obj = tmp["mesh_obj"].tolist()
     return mesh_obj
 
 
 def get_trajectory(
     l_path: str,
+    plot_traj: bool = True,
     tank: TankProperties32x2 = TankProperties32x2(),
     elev: int = 10,
     azim: int = 30,
 ) -> np.ndarray:
+    """
+    Get all measured coordinates.
+    It is default to plt a 3D visualiuation
+
+    Parameters
+    ----------
+    l_path : str
+        load path
+    plot_traj : bool, optional
+        3d plot of the coordinated, by default True
+    tank : TankProperties32x2, optional
+        tank properties, by default TankProperties32x2()
+    elev : int, optional
+        elevation angle of 3d plot, by default 10
+    azim : int, optional
+        azimut angle of 3d plot, by default 30
+
+    Returns
+    -------
+    np.ndarray
+        measured coordinates
+    """
     dir_length = len(os.listdir(l_path + "data/"))
     traj_xyz = np.zeros((dir_length, 3))
 
@@ -101,36 +138,195 @@ def get_trajectory(
         traj_xyz[idx, 1] = tmp["anomaly"].tolist().y
         traj_xyz[idx, 2] = tmp["anomaly"].tolist().z
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
-    # phantom-tank border
+    if plot_traj:
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection="3d")
+        zyl_pnts = 50
+        theta = np.linspace(0, 2 * np.pi, zyl_pnts)
+        z = np.linspace(tank.T_bz[0], tank.T_bz[1], zyl_pnts)
+        Z, Theta = np.meshgrid(z, theta)
+        X = tank.T_r * np.cos(Theta)
+        Y = tank.T_r * np.sin(Theta)
+        ax.plot_surface(X, Y, Z, color="C7", alpha=0.2)
+        p = ax.scatter(
+            traj_xyz[:, 0],
+            traj_xyz[:, 1],
+            traj_xyz[:, 2],
+            c=np.linspace(0, 1, traj_xyz.shape[0]),
+            marker="o",
+            s=25,
+            alpha=1,
+        )
+        ax.set_xlim([tank.T_bx[0], tank.T_bx[1]])
+        ax.set_ylim([tank.T_by[0], tank.T_by[1]])
+        ax.set_zlim([tank.T_bz[0], tank.T_bz[1]])
 
-    zyl_pnts = 50
-    theta = np.linspace(0, 2 * np.pi, zyl_pnts)
-    z = np.linspace(tank.T_bz[0], tank.T_bz[1], zyl_pnts)
-    Z, Theta = np.meshgrid(z, theta)
-    X = tank.T_r * np.cos(Theta)
-    Y = tank.T_r * np.sin(Theta)
-    ax.plot_surface(X, Y, Z, color="C7", alpha=0.2)
-
-    # plot mesh
-    ax.scatter(
-        traj_xyz[:, 0],
-        traj_xyz[:, 1],
-        traj_xyz[:, 2],
-        # c=mesh.perm_array,
-        marker="o",
-        s=25,
-        alpha=0.3,
-    )
-    # ax.set_xlim([tank.T_bx[0], tank.T_bx[1]])
-    # ax.set_ylim([tank.T_by[0], tank.T_by[1]])
-    # ax.set_zlim([tank.T_bz[0], tank.T_bz[1]])
-
-    ax.set_xlabel("x pos [mm]")
-    ax.set_ylabel("y pos [mm]")
-    ax.set_zlabel("z pos [mm]")
-    ax.view_init(elev=elev, azim=azim)
-    plt.tight_layout()
-    plt.show()
+        ax.set_xlabel("x pos [mm]")
+        ax.set_ylabel("y pos [mm]")
+        ax.set_zlabel("z pos [mm]")
+        ax.view_init(elev=elev, azim=azim)
+        fig.colorbar(
+            p,
+            shrink=0.7,
+            orientation="horizontal",
+            pad=0,
+            label="Order from start to finish",
+        )
+        plt.tight_layout()
+        plt.show()
     return np.unique(traj_xyz, axis=0)
+
+
+def get_measured_potential(
+    tmp: np.lib.npyio.NpzFile, shape_type="matrix"
+) -> np.ndarray:
+    """
+    Read the measured complex potential data.
+
+    Parameters
+    ----------
+    tmp : np.lib.npyio.NpzFile
+        measurement file
+    shape_type : str, optional {'matrix', 'vector'}
+        shape of the data, by default "matrix"
+
+    Returns
+    -------
+    np.ndarray
+        complex potential data
+    """
+    ssms = tmp["config"].tolist()
+    ch_n = ssms.n_el // len(ssms.channel_group)
+    pot_array = list()
+
+    ch_group_srtng = np.zeros((len(ssms.channel_group), ch_n), dtype=complex)
+    channel_switch = 0
+    for frame in tmp["data"]:
+        frame_tmp_dict = frame.__dict__
+        group = frame_tmp_dict["channel_group"]
+        for ch in range(ch_n):
+            ch_group_srtng[group - 1, ch] = frame_tmp_dict[f"ch_{ch+1}"]
+        channel_switch += 1
+        if channel_switch == len(ssms.channel_group):
+            ch_group_srtng = np.concatenate(ch_group_srtng)
+            pot_array.append(ch_group_srtng)
+            ch_group_srtng = np.zeros((len(ssms.channel_group), ch_n), dtype=complex)
+            channel_switch = 0
+    pot_array = np.array(pot_array)
+    if shape_type == "matrix":
+        return pot_array
+    if shape_type == "vector":
+        return np.concatenate(pot_array)
+
+
+def get_inj_pattern(tmp: np.lib.npyio.NpzFile) -> int:
+    """
+    Reads the injection pattern from measured data.
+
+    Parameters
+    ----------
+    tmp : np.lib.npyio.NpzFile
+        measurement file
+
+    Returns
+    -------
+    int
+        number of skipped electrodes
+    """
+    inj, gnd = tmp["data"][0].excitation_stgs
+    skip = gnd - inj - 1
+    print(f"{inj=}, {gnd=}, pattern: {skip=}")
+    return skip
+
+
+def get_channel_group(tmp: np.lib.npyio.NpzFile) -> int:
+    """
+    Reads the channel group from measured data.
+
+    Parameters
+    ----------
+    tmp : np.lib.npyio.NpzFile
+        measurement file
+
+    Returns
+    -------
+    int
+        measurement channel group number
+    """
+    ch_grp = tmp["data"][0].channel_group
+    print(f"Measured on channel group: {ch_grp}.")
+    return ch_grp
+
+
+def get_BallAnomaly_properties(tmp: np.lib.npyio.NpzFile) -> BallAnomaly:
+    """
+    Get the properties of the placed anomaly.
+
+    Parameters
+    ----------
+    tmp : np.lib.npyio.NpzFile
+        measurement file
+
+    Returns
+    -------
+    BallAnomaly
+        ball anomaly dataclass
+    """
+    return tmp["anomaly"].tolist()
+
+
+def get_config(tmp: np.lib.npyio.NpzFile) -> ScioSpecMeasurementSetup:
+    """
+    Get the measurement configuration.
+
+    Parameters
+    ----------
+    tmp : np.lib.npyio.NpzFile
+        measurement file
+
+    Returns
+    -------
+    ScioSpecMeasurementSetup
+        sciopy configuration dataclass
+    """
+    return tmp["config"].tolist()
+
+
+def get_SingleFrame_exc_stage(dataframe: SingleFrame) -> np.ndarray:
+    """
+    Get the excitation electrodes from a single dataframe.
+
+    A single tmp (measurement file) has 256 SingleFrames.
+
+    Parameters
+    ----------
+    dataframe : SingleFrame
+        single measurement iteration
+
+    Returns
+    -------
+    np.ndarray
+        injecting electrodes
+    """
+    return np.array(dataframe.excitation_stgs)
+
+
+def get_excitation_stages(tmp: np.lib.npyio.NpzFile) -> np.array:
+    """
+    Get the excitation stages from a measurement.
+
+    Parameters
+    ----------
+    tmp : np.lib.npyio.NpzFile
+        measurement file
+
+    Returns
+    -------
+    np.array
+        excitational stages
+    """
+    exc_stgs = list()
+    for frame in tmp["data"]:
+        exc_stgs.append(get_SingleFrame_exc_stage(frame))
+    exc_stgs = np.array(exc_stgs)
+    return exc_stgs
