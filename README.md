@@ -54,5 +54,5 @@ The coordinate system for controlling the Ender 5 is different from the python s
 
 ### Measurement Objects
 
-In total 36 measurement combination are planned.
+In total 18 measurement combination are planned.
 ![measurement_tree](images/measurement_tree.png)
