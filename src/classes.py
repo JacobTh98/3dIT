@@ -117,3 +117,11 @@ class MeasurementInformation:
     saline_height: tuple[float, str]
     temperature: tuple[float, str]
     timestamp: str
+
+
+@dataclass
+class CSVConvertInfo:
+    l_path: str
+    s_path: str
+    s_csv: str
+    n_samples: int

@@ -2,8 +2,12 @@ import json
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-from .classes import PyEIT3DMesh, TankProperties32x2, BallAnomaly
+from .classes import PyEIT3DMesh, TankProperties32x2, BallAnomaly, CSVConvertInfo
+import csv
 from sciopy.sciopy_dataclasses import ScioSpecMeasurementSetup, SingleFrame
+import shutil
+from itertools import chain
+from tqdm import tqdm
 
 
 def get_sample(l_path: str, idx: int) -> np.lib.npyio.NpzFile:
@@ -254,7 +258,7 @@ def get_channel_group(tmp: np.lib.npyio.NpzFile) -> int:
         measurement channel group number
     """
     ch_grp = tmp["data"][0].channel_group
-    print(f"Measured on channel group: {ch_grp}.")
+    print(f"Measured on channel group: {ch_grp}")
     return ch_grp
 
 
@@ -330,3 +334,86 @@ def get_excitation_stages(tmp: np.lib.npyio.NpzFile) -> np.array:
         exc_stgs.append(get_SingleFrame_exc_stage(frame))
     exc_stgs = np.array(exc_stgs)
     return exc_stgs
+
+
+def prepare_csv_conv(l_path: str) -> CSVConvertInfo:
+    s_path = l_path[:-1] + "_csv/"
+    try:
+        os.mkdir(s_path)
+        print("Created save directory.")
+    except BaseException:
+        print("Directory already exists.")
+    try:
+        shutil.copyfile(l_path + "info.json", s_path + "info.json")
+    except BaseException:
+        print("No 'info.json' found.")
+    try:
+        shutil.copyfile(
+            l_path + "temperature_history.pdf", s_path + "temperature_history.pdf"
+        )
+    except BaseException:
+        print("No 'temperature_history.pdf' found.")
+
+    with open(s_path + "data.csv", "w") as creating_new_csv_file:
+        pass
+    print("Empty .csv file created successfully")
+    s_csv = s_path + "data.csv"
+    n_samples = len(os.listdir(l_path + "data/"))
+    return CSVConvertInfo(l_path, s_path, s_csv, n_samples)
+
+
+def write_top_csv_row(
+    conv_info: CSVConvertInfo, config: ScioSpecMeasurementSetup, anomaly: BallAnomaly
+) -> None:
+    csv_top_row = [
+        ["meas_num", "exc_stgs"],
+        [f"obj_{anmly}_pos [mm]" for anmly in list(anomaly.__dict__.keys())[:-3]],
+        ["obj d [mm]"],
+        ["el_{0:02d}".format(el + 1) for el in range(config.n_el)],
+    ]
+
+    csv_top_row = list(chain(*csv_top_row))
+
+    with open(conv_info.s_csv, "a", newline="") as csv_file:
+        csv_writer = csv.writer(csv_file)
+        csv_writer.writerow(csv_top_row)
+    print("Added top row to csv file.")
+
+
+def parse_npzdata_in_csv(conv_info: CSVConvertInfo) -> None:
+    with open(conv_info.s_csv, "r") as csv_file:
+        csv_reader = csv.reader(csv_file)
+        top_row = next(csv_reader, None)
+        if top_row is not None:
+            top_row_length = len(top_row)
+        else:
+            print("CSV file is empty, create top row: 'write_top_csv_row()'.")
+            return
+    try:
+        tmp, _ = get_sample(conv_info.l_path, 0)
+    except BaseException:
+        print("Cant load sample 0.")
+
+    rows_len = np.unique(get_excitation_stages(tmp), axis=0).shape[0]
+    clmn_len = top_row_length
+    print("Writing .csv...")
+    for sample_idx in tqdm(range(len(os.listdir(conv_info.l_path + "data/")))):
+        tmp, _ = get_sample(conv_info.l_path, sample_idx)
+        config = get_config(tmp)
+        extst = np.unique(get_excitation_stages(tmp), axis=0)
+        anomaly = get_BallAnomaly_properties(tmp).__dict__
+        pot = get_measured_potential(tmp)
+
+        for i in range(rows_len):
+            row_list = [None for _ in range(clmn_len)]
+            row_list[0] = sample_idx
+            ex1, ex2 = extst[i]
+            row_list[1] = f"{ex1}, {ex2}"
+            for anml_idx in range(4):
+                row_list[anml_idx + 2] = list(anomaly.values())[anml_idx]
+            for el_xx in range(config.n_el):
+                row_list[el_xx + 6] = pot[i, el_xx]
+            with open(conv_info.s_csv, "a", newline="") as csv_file:
+                csv_writer = csv.writer(csv_file)
+                csv_writer.writerow(row_list)
+    print("Done.")
