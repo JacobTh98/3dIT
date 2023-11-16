@@ -8,9 +8,10 @@ from sciopy.sciopy_dataclasses import ScioSpecMeasurementSetup, SingleFrame
 import shutil
 from itertools import chain
 from tqdm import tqdm
+from typing import Union
 
 
-def get_sample(l_path: str, idx: int) -> np.lib.npyio.NpzFile:
+def get_sample(l_path: str, idx: int) -> Union[np.lib.npyio.NpzFile, dict]:
     """
     Load a single sample out of a load path.
 
@@ -23,8 +24,8 @@ def get_sample(l_path: str, idx: int) -> np.lib.npyio.NpzFile:
 
     Returns
     -------
-    np.lib.npyio.NpzFile
-        numpy measurement file
+    Union[np.lib.npyio.NpzFile, dict]
+        numpy measurement file, information dict
     """
     try:
         tmp = np.load(l_path + "data/sample_{0:06d}.npz".format(idx), allow_pickle=True)
@@ -33,7 +34,6 @@ def get_sample(l_path: str, idx: int) -> np.lib.npyio.NpzFile:
         return tmp, info_dict
     except BaseException:
         print("Error during loading")
-        return None, None
 
 
 def temperature_history(
@@ -365,6 +365,18 @@ def prepare_csv_conv(l_path: str) -> CSVConvertInfo:
 def write_top_csv_row(
     conv_info: CSVConvertInfo, config: ScioSpecMeasurementSetup, anomaly: BallAnomaly
 ) -> None:
+    """
+    Creates the top row titles of the columns.
+
+    Parameters
+    ----------
+    conv_info : CSVConvertInfo
+        conversion info dataclass
+    config : ScioSpecMeasurementSetup
+        sciospec measurement config
+    anomaly : BallAnomaly
+        object properties
+    """
     csv_top_row = [
         ["meas_num", "exc_stgs"],
         [f"obj_{anmly}_pos [mm]" for anmly in list(anomaly.__dict__.keys())[:-3]],
@@ -381,6 +393,14 @@ def write_top_csv_row(
 
 
 def parse_npzdata_in_csv(conv_info: CSVConvertInfo) -> None:
+    """
+    Convert all npz samples to csv.
+
+    Parameters
+    ----------
+    conv_info : CSVConvertInfo
+        conversion info dataclass
+    """
     with open(conv_info.s_csv, "r") as csv_file:
         csv_reader = csv.reader(csv_file)
         top_row = next(csv_reader, None)

@@ -113,6 +113,10 @@ class PyEIT3DMesh:
 
 @dataclass
 class MeasurementInformation:
+    """
+    dataclass for savin the measurement properties.
+    """
+
     saline: tuple[float, str]
     saline_height: tuple[float, str]
     temperature: tuple[float, str]
@@ -121,6 +125,10 @@ class MeasurementInformation:
 
 @dataclass
 class CSVConvertInfo:
+    """
+    Dataclass for converting npz to csv.
+    """
+
     l_path: str
     s_path: str
     s_csv: str
