@@ -374,7 +374,7 @@ def empty_tank_measurement(
 
         np.savez(
             s_path[:-5]
-            + "emtpy_tank/"
+            + "empty_tank/"
             + sample_preamble
             + "_{0:06d}.npz".format(samples_counter),
             data=data,
