@@ -1,9 +1,20 @@
 from typing import Union, Tuple
-from .classes import TankProperties32x2, BallAnomaly, HitBox, PyEIT3DMesh
+from .classes import (
+    TankProperties32x2,
+    BallAnomaly,
+    HitBox,
+    PyEIT3DMesh,
+    Ender5Stat,
+    MeasurementInformation,
+)
 import numpy as np
 import json
+import time
+from .ender5 import move_to_absolute_x_y_z, read_temperature
+from .sciospec import sciospec_measurement
 import os
 from datetime import datetime
+from sciopy import SystemMessageCallback_usb_hs
 from sciopy.sciopy_dataclasses import ScioSpecMeasurementSetup
 
 
@@ -125,6 +136,7 @@ def create_measurement_directory(
     s_path = f"{meas_dir}{f_name}"
     os.mkdir(s_path)
     print(f"Created new measurement directory at: {s_path}")
+    os.mkdir(s_path + "/emtpy_tank")
     s_path += "/data"
     os.mkdir(s_path)
     s_path += "/"
@@ -308,3 +320,72 @@ def rename_savedir(
         print("\t", n_s_path)
     except BaseException:
         print("ERROR: Folder already exist or other problems.")
+
+
+def empty_tank_measurement(
+    COM_Ender,
+    enderstat: Ender5Stat,
+    COM_Sciospec,
+    ssms: ScioSpecMeasurementSetup,
+    s_path: str,
+    ball: BallAnomaly,
+    documentation: MeasurementInformation,
+    sample_preamble: str,
+    tank: TankProperties32x2(),
+) -> None:
+    """
+    Creates the empty tank measurement. Please define before and after
+
+    Parameters
+    ----------
+    COM_Ender : _type_
+        serial connection to 3d printer
+    enderstat : Ender5Stat
+        ender 5 dataclass
+    COM_Sciospec : _type_
+        serial connection to sciospec eit device
+    ssms : ScioSpecMeasurementSetup
+        sciospec configuration dataclass
+    s_path : str
+        save path
+    ball : BallAnomaly
+        anomaly property dataclass
+    documentation : MeasurementInformation
+        documentation dataclass
+    sample_preamble : str, ["before", "after"]
+        name of the file before numbering it
+    tank : TankProperties32x2
+        tank properties dataclass
+    """
+    samples_counter = 0
+    ball.x, ball.y, ball.z = 180, 180, tank.T_bz[1] + ball.d + 10
+
+    enderstat.abs_x_pos = 180
+    enderstat.abs_x_pos = 180
+    enderstat.abs_z_pos = tank.T_bz[1] + ball.d + 10  # plus 10mm tolerance
+    enderstat.motion_speed = 1500
+    move_to_absolute_x_y_z(COM_Ender, enderstat)
+
+    time.sleep(10)
+
+    save_gt = f"{s_path[:-5]}empty_tank/{sample_preamble}_"
+
+    documentation.temperature = read_temperature(COM_Ender)
+    current_time = datetime.now()
+    documentation.timestamp = current_time.strftime("%d_%m_%Y_%Hh_%Mm")
+    sciospec_data = sciospec_measurement(COM_Sciospec, ssms)
+
+    for data in sciospec_data:
+        current_time = datetime.now()
+        documentation.timestamp = current_time.strftime("%d_%m_%Y_%Hh_%Mm")
+
+        np.savez(
+            save_gt + "{0:06d}.npz".format(samples_counter),
+            data=data,
+            anomaly=ball,
+            config=ssms,
+            tank=tank,
+            documentation=documentation,
+        )
+        samples_counter += 1
+    SystemMessageCallback_usb_hs(COM_Sciospec, prnt_msg=False)
