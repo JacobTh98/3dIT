@@ -9,7 +9,7 @@ import shutil
 from itertools import chain
 from tqdm import tqdm
 from typing import Union
-
+from .functions import create_mesh, set_perm
 
 def get_sample(l_path: str, idx: int) -> Union[np.lib.npyio.NpzFile, dict]:
     """
@@ -437,3 +437,47 @@ def parse_npzdata_in_csv(conv_info: CSVConvertInfo) -> None:
                 csv_writer = csv.writer(csv_file)
                 csv_writer.writerow(row_list)
     print("Done.")
+
+def get_permarray_FF(l_path:str, idx:int)->np.ndarray:
+    """
+    Get perm array fast forward
+
+    Parameters
+    ----------
+    l_path : str
+        load path
+    idx : int
+        selected file index
+
+    Returns
+    -------
+    np.ndarray
+        perm_array from PyEIT3DMesh dataclass
+    """
+    tmp,_ = get_sample(l_path,idx)
+    tank = tmp["tank"].tolist()
+    anomaly=get_BallAnomaly_properties(tmp)
+    mesh_obj = create_mesh(tank)
+    mesh_obj = set_perm(mesh_obj, anomaly)
+    return mesh_obj.perm_array
+
+def get_pot_data_FF(l_path:str, idx:int)->np.ndarray:
+    """
+    Get the absolute potential data fast forward.
+
+    Parameters
+    ----------
+    l_path : str
+        load path
+    idx : int
+        selected file index
+
+    Returns
+    -------
+    np.ndarray
+        absolute potential data
+    """
+    # get potential data fast forward
+    tmp,_ = get_sample(l_path,idx)
+    pot_data = get_measured_potential(tmp,'vector')
+    return np.abs(pot_data)
