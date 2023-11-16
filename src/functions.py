@@ -136,7 +136,7 @@ def create_measurement_directory(
     s_path = f"{meas_dir}{f_name}"
     os.mkdir(s_path)
     print(f"Created new measurement directory at: {s_path}")
-    os.mkdir(s_path + "/emtpy_tank")
+    os.mkdir(s_path + "/empty_tank")
     s_path += "/data"
     os.mkdir(s_path)
     s_path += "/"
@@ -277,9 +277,10 @@ def set_perm(
     """
     if clear_bg:
         mesh = clear_perm(mesh=mesh, perm_background=perm_background)
+
     obj_vol = (
         np.sqrt(
-            (mesh.x_nodes - anomaly.x) ** 2
+            (-mesh.x_nodes - anomaly.x) ** 2
             + (mesh.y_nodes - anomaly.y) ** 2
             + (mesh.z_nodes - anomaly.z) ** 2
         )
@@ -357,19 +358,11 @@ def empty_tank_measurement(
     tank : TankProperties32x2
         tank properties dataclass
     """
+    if enderstat.abs_z_pos + ball.d <= documentation.saline_height[0]:
+        print("Move object out of the saline")
+        return
+
     samples_counter = 0
-    ball.x, ball.y, ball.z = 180, 180, tank.T_bz[1] + ball.d + 10
-
-    enderstat.abs_x_pos = 180
-    enderstat.abs_x_pos = 180
-    enderstat.abs_z_pos = tank.T_bz[1] + ball.d + 10  # plus 10mm tolerance
-    enderstat.motion_speed = 1500
-    move_to_absolute_x_y_z(COM_Ender, enderstat)
-
-    time.sleep(10)
-
-    save_gt = f"{s_path[:-5]}empty_tank/{sample_preamble}_"
-
     documentation.temperature = read_temperature(COM_Ender)
     current_time = datetime.now()
     documentation.timestamp = current_time.strftime("%d_%m_%Y_%Hh_%Mm")
@@ -380,7 +373,10 @@ def empty_tank_measurement(
         documentation.timestamp = current_time.strftime("%d_%m_%Y_%Hh_%Mm")
 
         np.savez(
-            save_gt + "{0:06d}.npz".format(samples_counter),
+            s_path[:-5]
+            + "emtpy_tank/"
+            + sample_preamble
+            + "_{0:06d}.npz".format(samples_counter),
             data=data,
             anomaly=ball,
             config=ssms,

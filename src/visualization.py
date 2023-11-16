@@ -34,7 +34,7 @@ def plot_meas_coords(
         save path, by default "images/"
     """
     x_flat = meas_coords[:, 0]
-    y_flat = meas_coords[:, 1]
+    y_flat = -meas_coords[:, 1]
     z_flat = meas_coords[:, 2]
 
     zyl_pnts = 50
@@ -54,7 +54,7 @@ def plot_meas_coords(
     else:
         ax.scatter(x_flat, y_flat, z_flat, c="b", marker="o", alpha=0.2)
         ax.scatter(
-            meas_coords[p_select, 0],
+            -meas_coords[p_select, 0],
             meas_coords[p_select, 1],
             meas_coords[p_select, 2],
             c="r",
