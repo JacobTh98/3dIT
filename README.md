@@ -60,3 +60,7 @@ In total 18 measurement combination are planned.
 ### Measurement Configuration
 
 ![measurement_config](images/el_numbering.png)
+
+### Show Injection Pattern
+
+![inj_pattern](images/inj_pattern.gif)

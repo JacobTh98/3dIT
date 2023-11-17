@@ -2,5 +2,6 @@ matplotlib==3.7.2
 numpy==1.25.0
 pyftdi==0.55.0
 pyserial==3.5
+Pillow==10.1.0
 sciopy==0.7.1
 tqdm==4.65.0
