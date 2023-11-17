@@ -2,6 +2,7 @@ import json
 import os
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import ticker
 from .classes import PyEIT3DMesh, TankProperties32x2, BallAnomaly, CSVConvertInfo
 import csv
 from sciopy.sciopy_dataclasses import ScioSpecMeasurementSetup, SingleFrame
@@ -37,7 +38,7 @@ def get_sample(l_path: str, idx: int) -> Union[np.lib.npyio.NpzFile, dict]:
 
 
 def temperature_history(
-    l_path, plot: bool = True, save_plot: bool = False
+    l_path, plot: bool = True, save_plot: bool = False, nbins:int=10
 ) -> np.ndarray:
     """
     Collects all temperature information of a measurement.
@@ -51,6 +52,8 @@ def temperature_history(
         plot the temperature history, by default True
     save_plot : bool, optional
         save the plot to the l_path directory, by default False
+    nbins : int, optional
+        maximum number of x ticks, by default 10
 
     Returns
     -------
@@ -70,15 +73,18 @@ def temperature_history(
     title = ".".join(tmp["documentation"].tolist().timestamp.split("_")[:3])
     temp_hist = np.array(temp_hist)
     if plot:
-        plt.figure(figsize=(6, 4))
+        # Auto Locator
+        ax = plt.subplot(111)
+        #plt.figure(figsize=(6, 4))
         t1 = "=".join(l_path.split("_")[1:3])
         t2 = "=".join(l_path.split("_")[3:5])[:-1]
         plt.title("measurement: " + t1 + ", " + t2 + "mm, " + title)
-        plt.plot(time_hist, temp_hist)
-        plt.xticks(rotation=65)
-        plt.xlabel("Timestamp in hh:mm")
-        plt.ylabel("Temperature in °C")
         plt.grid()
+        ax.plot(time_hist, temp_hist)
+        ax.xaxis.set_major_locator(ticker.AutoLocator())
+        ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
+        ax.set_xlabel("Timestamp in hh:mm")
+        ax.set_ylabel("Temperature in °C")
         plt.tight_layout()
         if save_plot:
             plt.savefig(l_path + "temperature_history.pdf")
