@@ -8,7 +8,7 @@ import numpy as np
 from .classes import Ender5Stat
 
 
-def command(ser, command: str, print_msg: bool = True) -> None:
+def command(ser, command: str, print_msg: bool = False) -> None:
     """
     Write a command to the serial connection.
 
