@@ -12,6 +12,7 @@ from tqdm import tqdm
 from typing import Union
 from .functions import create_mesh, set_perm
 
+
 def get_sample(l_path: str, idx: int) -> Union[np.lib.npyio.NpzFile, dict]:
     """
     Load a single sample out of a load path.
@@ -38,7 +39,7 @@ def get_sample(l_path: str, idx: int) -> Union[np.lib.npyio.NpzFile, dict]:
 
 
 def temperature_history(
-    l_path, plot: bool = True, save_plot: bool = False, nbins:int=10
+    l_path, plot: bool = True, save_plot: bool = False, nbins: int = 10
 ) -> np.ndarray:
     """
     Collects all temperature information of a measurement.
@@ -75,7 +76,7 @@ def temperature_history(
     if plot:
         # Auto Locator
         ax = plt.subplot(111)
-        #plt.figure(figsize=(6, 4))
+        # plt.figure(figsize=(6, 4))
         t1 = "=".join(l_path.split("_")[1:3])
         t2 = "=".join(l_path.split("_")[3:5])[:-1]
         plt.title("measurement: " + t1 + ", " + t2 + "mm, " + title)
@@ -444,7 +445,8 @@ def parse_npzdata_in_csv(conv_info: CSVConvertInfo) -> None:
                 csv_writer.writerow(row_list)
     print("Done.")
 
-def get_permarray_FF(l_path:str, idx:int)->np.ndarray:
+
+def get_permarray_FF(l_path: str, idx: int) -> np.ndarray:
     """
     Get perm array fast forward
 
@@ -460,14 +462,15 @@ def get_permarray_FF(l_path:str, idx:int)->np.ndarray:
     np.ndarray
         perm_array from PyEIT3DMesh dataclass
     """
-    tmp,_ = get_sample(l_path,idx)
+    tmp, _ = get_sample(l_path, idx)
     tank = tmp["tank"].tolist()
-    anomaly=get_BallAnomaly_properties(tmp)
+    anomaly = get_BallAnomaly_properties(tmp)
     mesh_obj = create_mesh(tank)
     mesh_obj = set_perm(mesh_obj, anomaly)
     return mesh_obj.perm_array
 
-def get_pot_data_FF(l_path:str, idx:int)->np.ndarray:
+
+def get_pot_data_FF(l_path: str, idx: int) -> np.ndarray:
     """
     Get the absolute potential data fast forward.
 
@@ -484,6 +487,6 @@ def get_pot_data_FF(l_path:str, idx:int)->np.ndarray:
         absolute potential data
     """
     # get potential data fast forward
-    tmp,_ = get_sample(l_path,idx)
-    pot_data = get_measured_potential(tmp,'vector')
+    tmp, _ = get_sample(l_path, idx)
+    pot_data = get_measured_potential(tmp, "vector")
     return np.abs(pot_data)
