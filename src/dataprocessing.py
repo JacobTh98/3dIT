@@ -449,7 +449,7 @@ def parse_npzdata_in_csv(conv_info: CSVConvertInfo) -> None:
     print("Done.")
 
 
-def get_permarray_FF(l_path: str, idx: int) -> np.ndarray:
+def get_permarray_FF(l_path: str, idx: int, h0: float = 1.0) -> np.ndarray:
     """
     Get perm array fast forward
 
@@ -459,6 +459,8 @@ def get_permarray_FF(l_path: str, idx: int) -> np.ndarray:
         load path
     idx : int
         selected file index
+    h0 : float, optional
+        points per millimeter, by default 0.1
 
     Returns
     -------
@@ -468,7 +470,7 @@ def get_permarray_FF(l_path: str, idx: int) -> np.ndarray:
     tmp, _ = get_sample(l_path, idx)
     tank = tmp["tank"].tolist()
     anomaly = get_BallAnomaly_properties(tmp)
-    mesh_obj = create_mesh(tank)
+    mesh_obj = create_mesh(tank, h0)
     mesh_obj = set_perm(mesh_obj, anomaly)
     return mesh_obj.perm_array
 
