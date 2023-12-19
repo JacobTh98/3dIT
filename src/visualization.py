@@ -160,9 +160,11 @@ def plot_meas_coords_wball(
 def plot_mesh(
     mesh: PyEIT3DMesh,
     tank: TankProperties32x2 = TankProperties32x2(),
+    obj_only: bool = True,
+    bg: int = 1,
     elev: int = 10,
     azim: int = 30,
-    show_tank_brdr: bool = False,
+    show_tank_brdr: bool = True,
 ) -> None:
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
@@ -177,15 +179,25 @@ def plot_mesh(
         ax.plot_surface(X, Y, Z, color="C7", alpha=0.2)
 
     # plot mesh
-    ax.scatter(
-        mesh.x_nodes,
-        mesh.y_nodes,
-        mesh.z_nodes,
-        c=mesh.perm_array,
-        marker="o",
-        s=25,
-        alpha=0.3,
-    )
+    if obj_only:
+        ax.scatter(
+            mesh.x_nodes[np.where(mesh.perm_array > bg)],
+            mesh.y_nodes[np.where(mesh.perm_array > bg)],
+            mesh.z_nodes[np.where(mesh.perm_array > bg)],
+            marker="o",
+            s=25,
+            alpha=1,
+        )
+    else:
+        ax.scatter(
+            mesh.x_nodes,
+            mesh.y_nodes,
+            mesh.z_nodes,
+            c=mesh.perm_array,
+            marker="o",
+            s=25,
+            alpha=0.3,
+        )
     ax.set_xlim([tank.T_bx[0], tank.T_bx[1]])
     ax.set_ylim([tank.T_by[0], tank.T_by[1]])
     ax.set_zlim([tank.T_bz[0], tank.T_bz[1]])
