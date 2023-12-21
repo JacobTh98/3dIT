@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from .classes import TankProperties32x2, BallAnomaly, PyEIT3DMesh
 import numpy as np
+from sklearn.manifold import TSNE
 from typing import Union
 
 
@@ -207,4 +208,35 @@ def plot_mesh(
     ax.set_zlabel("z pos [mm]")
     ax.view_init(elev=elev, azim=azim)
     plt.tight_layout()
+    plt.show()
+
+
+def plot_loss_history(history):
+    plt.figure(figsize=(6, 4))
+    plt.title("Training Loss History")
+    plt.plot(history.history["loss"], label="loss")
+    plt.plot(history.history["reconstruction_loss"], label="reconstruction loss")
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.legend()
+    plt.grid()
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_voxel(voxelarray):
+    ax = plt.figure(figsize=(6, 6)).add_subplot(projection="3d")
+    ax.voxels(voxelarray)
+    plt.show()
+
+
+def plot_latent_space_with_tsne(latent_space):
+    tsne = TSNE(n_components=2, random_state=42)
+    latent_space_2d = tsne.fit_transform(latent_space)
+
+    plt.figure(figsize=(6, 6))
+    plt.scatter(latent_space_2d[:, 0], latent_space_2d[:, 1], s=10)
+    plt.title("Latent Space Visualization with t-SNE (2D projection)")
+    plt.xlabel("t-SNE Dimension 1")
+    plt.ylabel("t-SNE Dimension 2")
     plt.show()
