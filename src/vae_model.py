@@ -60,7 +60,7 @@ class VAE(Model):
             )
             kl_loss = -0.5 * (1 + z_log_var - square(z_mean) - exp(z_log_var))
             kl_loss = reduce_mean(reduce_sum(kl_loss, axis=1))
-            total_loss = reconstruction_loss + 1e-2 * kl_loss
+            total_loss = reconstruction_loss + 1 * kl_loss
         grads = tape.gradient(total_loss, self.trainable_weights)
         self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
         self.total_loss_tracker.update_state(total_loss)

@@ -224,9 +224,10 @@ def plot_loss_history(history):
     plt.show()
 
 
-def plot_voxel(voxelarray):
+def plot_voxel(voxelarray, azim=30, elev=30):
     ax = plt.figure(figsize=(6, 6)).add_subplot(projection="3d")
     ax.voxels(voxelarray)
+    ax.view_init(azim=azim, elev=elev)
     plt.show()
 
 
