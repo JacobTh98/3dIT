@@ -45,7 +45,7 @@ def plot_meas_coords(
     X = tank.T_r * np.cos(Theta)
     Y = tank.T_r * np.sin(Theta)
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(6, 6))
     ax = fig.add_subplot(111, projection="3d")
     # phantom-tank border
     ax.plot_surface(X, Y, Z, color="C7", alpha=0.2)
@@ -128,7 +128,7 @@ def plot_meas_coords_wball(
         np.ones(np.size(u)), np.cos(v)
     )
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(6, 6))
     ax = fig.add_subplot(111, projection="3d")
     # phantom-tank border
     ax.plot_surface(X, Y, Z, color="C7", alpha=0.2)
@@ -158,6 +158,49 @@ def plot_meas_coords_wball(
     plt.show()
 
 
+def plot_rball(
+    tank: TankProperties32x2,
+    ball: BallAnomaly,
+    elev: int = 20,
+    azim: int = 10,
+    save_img: bool = False,
+    s_path: str = "images/",
+) -> None:
+    zyl_pnts = 50
+    theta = np.linspace(0, 2 * np.pi, zyl_pnts)
+    z = np.linspace(tank.T_bz[0], tank.T_bz[1], zyl_pnts)
+    Z, Theta = np.meshgrid(z, theta)
+    X = tank.T_r * np.cos(Theta)
+    Y = tank.T_r * np.sin(Theta)
+
+    bwl_pts = 10
+    u = np.linspace(0, 2 * np.pi, bwl_pts)
+    v = np.linspace(0, np.pi, bwl_pts)
+    x_c = ball.x + ball.d / 2 * np.outer(np.cos(u), np.sin(v))
+    y_c = ball.y + ball.d / 2 * np.outer(np.sin(u), np.sin(v))
+    z_c = ball.z + ball.d / 2 * np.outer(np.ones(np.size(u)), np.cos(v))
+
+    fig = plt.figure(figsize=(6, 6))
+    ax = fig.add_subplot(111, projection="3d")
+    # phantom-tank border
+    ax.plot_surface(X, Y, Z, color="C7", alpha=0.2)
+    # selected bowl
+    ax.plot_surface(x_c, y_c, z_c, color="C1", alpha=0.3)
+
+    ax.set_xlim([tank.T_bx[0], tank.T_bx[1]])
+    ax.set_ylim([tank.T_by[0], tank.T_by[1]])
+    ax.set_zlim([tank.T_bz[0], tank.T_bz[1]])
+
+    ax.set_xlabel("x pos [mm]")
+    ax.set_ylabel("y pos [mm]")
+    ax.set_zlabel("z pos [mm]")
+    ax.view_init(elev=elev, azim=azim)
+    plt.tight_layout()
+    if save_img:
+        plt.savefig(s_path + "plot_meas_coords_wball.png", dpi=250)
+    plt.show()
+
+
 def plot_mesh(
     mesh: PyEIT3DMesh,
     tank: TankProperties32x2 = TankProperties32x2(),
@@ -167,7 +210,7 @@ def plot_mesh(
     azim: int = 30,
     show_tank_brdr: bool = True,
 ) -> None:
-    fig = plt.figure()
+    fig = plt.figure(figsize=(6, 6))
     ax = fig.add_subplot(111, projection="3d")
     # phantom-tank border
     if show_tank_brdr:
@@ -224,10 +267,13 @@ def plot_loss_history(history):
     plt.show()
 
 
-def plot_voxel(voxelarray, azim=30, elev=30, save_img=False, s_name="unnamed.pdf"):
+def plot_voxel(voxelarray, elev=20, azim=10, save_img=False, s_name="unnamed.pdf"):
     ax = plt.figure(figsize=(6, 6)).add_subplot(projection="3d")
     ax.voxels(voxelarray)
     ax.view_init(azim=azim, elev=elev)
+    ax.set_xlabel("x []")
+    ax.set_ylabel("y []")
+    ax.set_zlabel("z []")
     plt.tight_layout()
     if save_img:
         plt.savefig(s_name, transparent=True)

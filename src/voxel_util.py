@@ -5,6 +5,15 @@ def substitute_true_false(arr, true_value=1, false_value=0):
     return np.where(arr, true_value, false_value)
 
 
+def voxel_ball(x0, y0, z0, d=3, mask=False, indices_res=(32, 32, 32)):
+    x, y, z = np.indices(indices_res)
+    voxel = np.sqrt((x - x0) ** 2 + (y - y0) ** 2 + (z - z0) ** 2) < d
+    if mask:
+        return voxel
+    else:
+        return substitute_true_false(voxel)
+
+
 def random_voxel_ball(d=3, mask=False, indices_res=(32, 32, 32)):
     x, y, z = np.indices(indices_res)
     x0, y0, z0 = np.random.randint(d, high=indices_res[0] - d, size=3)
@@ -55,3 +64,24 @@ def gen_voxel_brick_data(num, dim_expansion=True, d_xyz=[5, 5, 5]):
         return np.expand_dims(X, axis=4)
     else:
         return X
+
+
+def scale_realworld_to_intdomain(coordinate, hitbox, new_min=0, new_max=32, d=3):
+    y_r, x_r, z_r = coordinate
+    new_min += d
+    new_max -= d
+    # set minus x,y to origin
+    y_r += hitbox.y_max
+    x_r += hitbox.x_max
+
+    scaled_value_y = ((y_r) / (hitbox.y_max * 2)) * (new_max - new_min) + new_min
+    scaled_value_y = int(round(min(max(scaled_value_y, new_min), new_max)))
+
+    scaled_value_x = ((x_r) / (hitbox.x_max * 2)) * (new_max - new_min) + new_min
+    scaled_value_x = int(round(min(max(scaled_value_x, new_min), new_max)))
+
+    scaled_value_z = ((z_r - hitbox.z_min) / (hitbox.z_max - hitbox.z_min)) * (
+        new_max - new_min
+    ) + new_min
+    scaled_value_z = int(round(min(max(scaled_value_z, new_min), new_max)))
+    return scaled_value_y, scaled_value_x, scaled_value_z
