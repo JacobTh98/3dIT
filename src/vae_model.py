@@ -81,14 +81,18 @@ class VAE(Model):
             "reconstruction_loss": self.reconstruction_loss_tracker.result(),
             "kl_loss": self.kl_loss_tracker.result(),
         }
+
     def get_config(self):
         config = super(VAE, self).get_config()
-        config.update({
-            'encoder': tf.keras.utils.serialize_keras_object(self.encoder),
-            'decoder': tf.keras.utils.serialize_keras_object(self.decoder),
-            'beta': self.beta,
-        })
+        config.update(
+            {
+                "encoder": tf.keras.utils.serialize_keras_object(self.encoder),
+                "decoder": tf.keras.utils.serialize_keras_object(self.decoder),
+                "beta": self.beta,
+            }
+        )
         return config
+
 
 def encoder_model(
     input_shape=(32, 32, 32, 1),
