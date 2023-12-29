@@ -68,6 +68,7 @@ class VAE(Model):
             )  #
             reconstruction_loss *= np.prod((32, 32, 32, 1))
             # β-VAE
+            # print("beta value:",self.beta)
             total_loss = reconstruction_loss + self.beta * kl_loss
 
         grads = tape.gradient(total_loss, self.trainable_weights)
@@ -80,7 +81,14 @@ class VAE(Model):
             "reconstruction_loss": self.reconstruction_loss_tracker.result(),
             "kl_loss": self.kl_loss_tracker.result(),
         }
-
+    def get_config(self):
+        config = super(VAE, self).get_config()
+        config.update({
+            'encoder': tf.keras.utils.serialize_keras_object(self.encoder),
+            'decoder': tf.keras.utils.serialize_keras_object(self.decoder),
+            'beta': self.beta,
+        })
+        return config
 
 def encoder_model(
     input_shape=(32, 32, 32, 1),
@@ -146,6 +154,7 @@ def vae_model(
     strides=strides,
     paddings=paddings,
     latent_dim=latent_dim,
+    beta=1.0,
 ):
     encoder_inputs, z_mean, z_log_var, z = encoder_model(
         input_shape=(32, 32, 32, 1),
@@ -167,7 +176,7 @@ def vae_model(
     )
     decoder = Model(decoder_inputs, decoder_outputs, name="VAE_decoder")
 
-    return VAE(encoder, decoder, beta=1.0)
+    return VAE(encoder, decoder, beta=beta)
 
 
 # engineering decoder and encoder parts:
