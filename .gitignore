@@ -4,3 +4,5 @@ __pycache__
 sciospec_manual.pdf
 measurements/*
 developing.ipynb
+example.ipynb
+models/beta_tuning

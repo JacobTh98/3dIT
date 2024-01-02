@@ -27,7 +27,7 @@ kernels = [(4, 4, 4), (4, 4, 4), (4, 4, 4), (4, 4, 4)]
 strides = [(1, 1, 1), (2, 2, 2), (2, 2, 2), (2, 2, 2)]
 paddings = ["same", "same", "same", "same"]
 
-latent_dim = 10
+latent_dim = 8
 
 
 class Sampling(Layer):
