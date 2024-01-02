@@ -1,4 +1,5 @@
 import numpy as np
+import json
 
 
 def substitute_true_false(arr, true_value=1, false_value=0):
@@ -85,3 +86,16 @@ def scale_realworld_to_intdomain(coordinate, hitbox, new_min=0, new_max=32, d=3)
     ) + new_min
     scaled_value_z = int(round(min(max(scaled_value_z, new_min), new_max)))
     return scaled_value_y, scaled_value_x, scaled_value_z
+
+
+def read_json_file(file_path):
+    try:
+        with open(file_path, "r") as json_file:
+            data = json.load(json_file)
+            return data
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON in file {file_path}: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")

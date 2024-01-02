@@ -20,9 +20,9 @@ def plot_meas_coords(
     Parameters
     ----------
     tank : TankProperties32x2
-        tank properties [mm]
+        tank properties (mm)
     meas_coords : np.ndarray
-        computed absolute measurement coordinates [mm]
+        computed absolute measurement coordinates (mm)
     p_select : Union[None, int], optional
         highlight a single measurement coordinate, by default None
     elev : int, optional
@@ -66,9 +66,9 @@ def plot_meas_coords(
     ax.set_ylim([tank.T_by[0], tank.T_by[1]])
     ax.set_zlim([tank.T_bz[0], tank.T_bz[1]])
 
-    ax.set_xlabel("x pos [mm]")
-    ax.set_ylabel("y pos [mm]")
-    ax.set_zlabel("z pos [mm]")
+    ax.set_xlabel("x pos (mm)")
+    ax.set_ylabel("y pos (mm)")
+    ax.set_zlabel("z pos (mm)")
     ax.view_init(elev=elev, azim=azim)
     plt.tight_layout()
     if save_img:
@@ -92,11 +92,11 @@ def plot_meas_coords_wball(
     Parameters
     ----------
     tank : TankProperties32x2
-        tank properties [mm]
+        tank properties (mm)
     meas_coords : np.ndarray
-        computed absolute measurement coordinates [mm]
+        computed absolute measurement coordinates (mm)
     ball : BallAnomaly
-        ball properties [mm]
+        ball properties (mm)
     p_select : Union[None, int], optional
         highlight a single measurement coordinate, by default 0
     elev : int, optional
@@ -148,9 +148,9 @@ def plot_meas_coords_wball(
     ax.set_ylim([tank.T_by[0], tank.T_by[1]])
     ax.set_zlim([tank.T_bz[0], tank.T_bz[1]])
 
-    ax.set_xlabel("x pos [mm]")
-    ax.set_ylabel("y pos [mm]")
-    ax.set_zlabel("z pos [mm]")
+    ax.set_xlabel("x pos (mm)")
+    ax.set_ylabel("y pos (mm)")
+    ax.set_zlabel("z pos (mm)")
     ax.view_init(elev=elev, azim=azim)
     plt.tight_layout()
     if save_img:
@@ -191,9 +191,9 @@ def plot_rball(
     ax.set_ylim([tank.T_by[0], tank.T_by[1]])
     ax.set_zlim([tank.T_bz[0], tank.T_bz[1]])
 
-    ax.set_xlabel("x pos [mm]")
-    ax.set_ylabel("y pos [mm]")
-    ax.set_zlabel("z pos [mm]")
+    ax.set_xlabel("x pos (mm)")
+    ax.set_ylabel("y pos (mm)")
+    ax.set_zlabel("z pos (mm)")
     ax.view_init(elev=elev, azim=azim)
     plt.tight_layout()
     if save_img:
@@ -246,9 +246,9 @@ def plot_mesh(
     ax.set_ylim([tank.T_by[0], tank.T_by[1]])
     ax.set_zlim([tank.T_bz[0], tank.T_bz[1]])
 
-    ax.set_xlabel("x pos [mm]")
-    ax.set_ylabel("y pos [mm]")
-    ax.set_zlabel("z pos [mm]")
+    ax.set_xlabel("x pos (mm)")
+    ax.set_ylabel("y pos (mm)")
+    ax.set_zlabel("z pos (mm)")
     ax.view_init(elev=elev, azim=azim)
     plt.tight_layout()
     plt.show()
@@ -267,16 +267,18 @@ def plot_loss_history(history):
     plt.show()
 
 
-def plot_voxel(voxelarray, elev=20, azim=10, save_img=False, s_name="images/voxels.png"):
+def plot_voxel(
+    voxelarray, elev=20, azim=10, save_img=False, s_name="images/voxels.png"
+):
     ax = plt.figure(figsize=(6, 6)).add_subplot(projection="3d")
     ax.voxels(voxelarray)
     ax.view_init(azim=azim, elev=elev)
-    ax.set_xlabel("x [voxel]")
-    ax.set_ylabel("y [voxel]")
-    ax.set_zlabel("z [voxel]")
+    ax.set_xlabel("x (1)")
+    ax.set_ylabel("y (1)")
+    ax.set_zlabel("z (1)")
     plt.tight_layout()
     if save_img:
-        plt.savefig(s_name,dpi=250, transparent=True)
+        plt.savefig(s_name, dpi=250, transparent=True)
     plt.show()
 
 
