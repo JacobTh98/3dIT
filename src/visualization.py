@@ -273,9 +273,9 @@ def plot_voxel(
     ax = plt.figure(figsize=(6, 6)).add_subplot(projection="3d")
     ax.voxels(voxelarray)
     ax.view_init(azim=azim, elev=elev)
-    ax.set_xlabel("x (1)")
-    ax.set_ylabel("y (1)")
-    ax.set_zlabel("z (1)")
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.set_zlabel("z")
     plt.tight_layout()
     if save_img:
         plt.savefig(s_name, dpi=250, transparent=True)
