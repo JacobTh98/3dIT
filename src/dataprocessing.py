@@ -92,7 +92,7 @@ def temperature_history(
         plt.tight_layout()
         if save_plot:
             plt.savefig(l_path + "temperature_history.pdf")
-            plt.savefig(l_path + "temperature_history.png",dpi=300)
+            plt.savefig(l_path + "temperature_history.png", dpi=300)
         plt.show()
     return temp_hist
 
