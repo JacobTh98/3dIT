@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+title: >-
+  Repository for 3D EIT measurement with a modified Ender 5 3D printer and the ScioSpec Eit device.
+message: >-
+  If you use this repository, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Jacob Peter
+    family-names: Thönes
+    email: jacob.thoenes@uni-rostock.de
+    affiliation: Universität Rostock
+    orcid: 'https://orcid.org/0000-0003-2826-5281'
+repository-code: 'https://github.com/JacobTh98/3dIT'
+url: 'https://github.com/JacobTh98/3dIT'
+keywords:
+  - EIT
+  - Sciospec
+license: MIT
+version: 0.1.0
+date-released: '2023-12-01'
