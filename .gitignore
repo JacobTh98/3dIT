@@ -1,0 +1,8 @@
+.ipynb_checkpoints
+__pycache__
+.vscode
+sciospec_manual.pdf
+measurements/*
+developing.ipynb
+example.ipynb
+models/beta_tuning
