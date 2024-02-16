@@ -146,6 +146,7 @@ def create_measurement_directory(
 def save_parameters_to_json_file(
     s_path: str,
     f_name: str,
+    documentation: MeasurementInformation,
     ssms: ScioSpecMeasurementSetup,
     tank: TankProperties32x2,
     ball: BallAnomaly,
@@ -170,6 +171,7 @@ def save_parameters_to_json_file(
         x,y,z limits for measurements [mm]
     """
     today = datetime.now()
+    doc_dict = documentation.__dict__
     ssms_dict = ssms.__dict__
     tank_dict = tank.__dict__
     ball_dict = ball.__dict__
@@ -179,6 +181,7 @@ def save_parameters_to_json_file(
         "SaveTime": today.strftime("%d.%m.%Y %H:%M"),
         "DirName": f_name,
         "Info": "All dimensions are given in [mm]",
+        "Documentation": doc_dict,
         "ScioSpecMeasurementSetup": ssms_dict,
         "TankProperties32x2": tank_dict,
         "BallAnomaly": ball_dict,
