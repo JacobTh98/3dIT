@@ -9,7 +9,7 @@ _Based on: [sciospeceit](https://github.com/JacobTh98/sciospeceit)_
 
 The standart full measurement notebook is provided [here](measurement.ipynb).
 
-### Generate Measurement Coordinates
+### Generate measurement coordinates
 
 Import the required libraries:
 
@@ -47,20 +47,25 @@ For ground truth visualization a point cloud is used. The corresponding class an
     # set the perm
     mesh_obj = set_perm(mesh_obj, ball)
 
-### Ender 5 Information
+### Ender 5 information
 
 The Ender 5 is used for object placement and movement inside the phantom tank. The nozzle for printing was replaced with a mounting construction.
 The coordinate system for controlling the Ender 5 is different from the python standard coordinate axis. The $x$ and $y$ axis has to be switched.
 
-### Measurement Objects
+### Measurement objects
 
 In total 18 measurement combination are planned.
 ![measurement_tree](images/measurement_tree.png)
 
-### Measurement Configuration
+### Measurement configuration
 
 ![measurement_config](images/el_numbering.png)
 
-### Show Injection Pattern
+### Show injection pattern
 
 ![inj_pattern](images/inj_pattern.gif)
+
+
+### Reconstruction network architecture
+
+![flowchart_modeltraining](images/flowchart_modeltraining.png)
